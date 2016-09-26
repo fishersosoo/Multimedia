@@ -1,0 +1,22 @@
+﻿生成启动时间为 2016/9/26 21:19:19。
+     1>项目“C:\Users\sosoo\Downloads\2016 数字媒体实验图像处理实验\2016数字媒体处理 图像处理实验\任务3 多线程图像处理基础\Multimedia\Multimedia\Multimedia.vcxproj”在节点 2 上(Build 个目标)。
+     1>ClCompile:
+         C:\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D _WINDOWS /D NDEBUG /D _MBCS /D _AFXDLL /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /openmp /Yu"stdafx.h" /Fp"Release\Multimedia.pch" /Fo"Release\\" /Fd"Release\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt ImageProcess.cpp Multimedia.cpp MultimediaDlg.cpp
+         ImageProcess.cpp
+         Multimedia.cpp
+         MultimediaDlg.cpp
+     1>MultimediaDlg.cpp(24): warning C4244: “参数”: 从“time_t”转换到“unsigned int”，可能丢失数据
+       Link:
+         C:\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\sosoo\Downloads\2016 数字媒体实验图像处理实验\2016数字媒体处理 图像处理实验\任务3 多线程图像处理基础\Multimedia\Release\Multimedia.exe" /INCREMENTAL:NO /NOLOGO /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /manifestinput:"C:\Microsoft Visual Studio 11.0\VC\Include\Manifest\dpiaware.manifest" /DEBUG /PDB:"C:\Users\sosoo\Downloads\2016 数字媒体实验图像处理实验\2016数字媒体处理 图像处理实验\任务3 多线程图像处理基础\Multimedia\Release\Multimedia.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\sosoo\Downloads\2016 数字媒体实验图像处理实验\2016数字媒体处理 图像处理实验\任务3 多线程图像处理基础\Multimedia\Release\Multimedia.lib" /MACHINE:X86 /SAFESEH Release\Multimedia.res
+         Release\ImageProcess.obj
+         Release\Multimedia.obj
+         Release\MultimediaDlg.obj
+         Release\stdafx.obj
+         正在生成代码
+         已完成代码的生成
+         Multimedia.vcxproj -> C:\Users\sosoo\Downloads\2016 数字媒体实验图像处理实验\2016数字媒体处理 图像处理实验\任务3 多线程图像处理基础\Multimedia\Release\Multimedia.exe
+     1>已完成生成项目“C:\Users\sosoo\Downloads\2016 数字媒体实验图像处理实验\2016数字媒体处理 图像处理实验\任务3 多线程图像处理基础\Multimedia\Multimedia\Multimedia.vcxproj”(Build 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:03.33
