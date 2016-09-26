@@ -49,6 +49,7 @@ public:
 
 // 实现
 protected:
+
 	HICON m_hIcon;
 	CImage *m_pImgSrc;//图像
 	int m_nThreadNum;//线程数

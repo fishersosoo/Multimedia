@@ -6,13 +6,18 @@
 #include "Multimedia.h"
 #include "MultimediaDlg.h"
 #include "afxdialogex.h"
-
+#include <time.h>   
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
 // CMultimediaDlg 对话框
-
+long getCurrentTime()
+{
+	struct timeval tv;
+	long t1 = GetTickCount();
+	return t1;
+}
 CMultimediaDlg::CMultimediaDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CMultimediaDlg::IDD, pParent)
 {
@@ -59,14 +64,14 @@ BOOL CMultimediaDlg::OnInitDialog()
 	// TODO: 在此添加额外的初始化代码
 	CComboBox* cmb_thread = ((CComboBox*)GetDlgItem(IDC_COMBO_THREAD));
 	
-	cmb_thread->AddString("WIN多线程");	
-	cmb_thread->AddString("OpenMP");
-	cmb_thread->AddString("CUDA");
+	cmb_thread->AddString(*new CString ("WIN多线程"));	
+	cmb_thread->AddString(*new CString("OpenMP"));
+	cmb_thread->AddString(*new CString("CUDA"));
 	cmb_thread->SetCurSel(0);
 	
 	CComboBox* cmb_function = ((CComboBox*)GetDlgItem(IDC_COMBO_FUNCTION));
-	cmb_function->AddString("椒盐噪声");
-	cmb_function->AddString("中值滤波");
+	cmb_function->AddString(*new CString("椒盐噪声"));
+	cmb_function->AddString(*new CString("中值滤波"));
 	cmb_function->SetCurSel(0);
 
 	CSliderCtrl *slider = (CSliderCtrl*)GetDlgItem(IDC_SLIDER);
@@ -182,7 +187,7 @@ void CMultimediaDlg::ThreadDraw(DrawPara *p)
 	p->pImgSrc->StretchBlt(memDC.m_hDC, 0, 0, p->width, p->height);
 	
 	// 将已画好的画布复制到真正的缓冲区中
-	p->pDC->BitBlt(p->oriX+100, p->oriY+700, p->width, p->height, &memDC, 0,0, SRCCOPY ); 
+	p->pDC->BitBlt(p->oriX, p->oriY+200, p->width, p->height, &memDC, 0,0, SRCCOPY ); 
 	memBitmap.DeleteObject();
 	memDC.DeleteDC();
 }
@@ -294,7 +299,7 @@ void CMultimediaDlg::AddNoise()
 
 			CTime endTime = CTime::GetTickCount();
 			CString timeStr;
-			timeStr.Format("耗时:%dms", endTime - startTime);
+			timeStr.Format(*new CString("耗时:%dms"), endTime - startTime);
 			AfxMessageBox(timeStr);
 		}
 
@@ -349,7 +354,7 @@ void CMultimediaDlg::MedianFilter()
 
 			CTime endTime = CTime::GetTickCount();
 			CString timeStr;
-			timeStr.Format("耗时:%dms", endTime - startTime);
+			timeStr.Format(*new CString("耗时:%dms"), endTime - startTime);
 			AfxMessageBox(timeStr);
 		}
 
@@ -371,7 +376,7 @@ LRESULT CMultimediaDlg::OnMedianFilterThreadMsgReceived(WPARAM wParam, LPARAM lP
 		{
 			CTime endTime = CTime::GetTickCount();
 			CString timeStr;
-			timeStr.Format("耗时:%dms", endTime - startTime);
+			timeStr.Format(*new CString("耗时:%dms"), endTime - startTime);
 			tempCount = 0;
 
 			// 显示消息窗口
@@ -391,7 +396,7 @@ LRESULT CMultimediaDlg::OnNoiseThreadMsgReceived(WPARAM wParam, LPARAM lParam)
 	{
 		CTime endTime = CTime::GetTickCount();
 		CString timeStr;
-		timeStr.Format("耗时:%dms", endTime - startTime);
+		timeStr.Format(*new CString("耗时:%dms"), endTime - startTime);
 		tempCount = 0;
 
 		AfxMessageBox(timeStr);
@@ -450,7 +455,7 @@ void CMultimediaDlg::OnBnClickedButtonTone()
 
 			CTime endTime = CTime::GetTickCount();
 			CString timeStr;
-			timeStr.Format("耗时:%dms", endTime - startTime);
+			timeStr.Format(*new CString("耗时:%dms"), endTime - startTime);
 			AfxMessageBox(timeStr);
 		}
 
