@@ -47,6 +47,9 @@ BEGIN_MESSAGE_MAP(CMultimediaDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_TONE2, &CMultimediaDlg::OnBnClickedButtonTone)
 	ON_BN_CLICKED(IDC_BUTTON_WB, &CMultimediaDlg::OnBnClickedButtonWb)
 	ON_BN_CLICKED(IDC_BUTTON_RnS, &CMultimediaDlg::OnBnClickedButtonRns)
+	ON_MESSAGE(WM_HISTOGRAM, &CMultimediaDlg::OnHistogram)
+	ON_BN_CLICKED(IDC_BUTTON1, &CMultimediaDlg::OnBnClickedButton1)
+	ON_BN_CLICKED(IDC_BUTTON_SAVE, &CMultimediaDlg::OnBnClickedButtonSave)
 END_MESSAGE_MAP()
 
 
@@ -264,7 +267,7 @@ void CMultimediaDlg::AddNoise()
 {
 	CComboBox* cmb_thread = ((CComboBox*)GetDlgItem(IDC_COMBO_THREAD));
 	int thread = cmb_thread->GetCurSel();
-	startTime = CTime::GetTickCount();
+	startTime = getCurrentTime();
 	switch (thread)
 	{
 	case 0://win多线程
@@ -297,7 +300,7 @@ void CMultimediaDlg::AddNoise()
 			}
 
 
-			CTime endTime = CTime::GetTickCount();
+			long endTime = getCurrentTime();
 			CString timeStr;
 			timeStr.Format(*new CString("耗时:%dms"), endTime - startTime);
 			AfxMessageBox(timeStr);
@@ -314,7 +317,7 @@ void CMultimediaDlg::MedianFilter()
 {
 	CComboBox* cmb_thread = ((CComboBox*)GetDlgItem(IDC_COMBO_THREAD));
 	int thread = cmb_thread->GetCurSel();
-	startTime = CTime::GetTickCount();
+	startTime = getCurrentTime();
 	m_nThreadNum;
 	switch (thread)
 	{
@@ -352,7 +355,7 @@ void CMultimediaDlg::MedianFilter()
 				ImageProcess::medianFilter(&m_pThreadParam[i]);
 			}
 
-			CTime endTime = CTime::GetTickCount();
+			long endTime = getCurrentTime();
 			CString timeStr;
 			timeStr.Format(*new CString("耗时:%dms"), endTime - startTime);
 			AfxMessageBox(timeStr);
@@ -374,7 +377,7 @@ LRESULT CMultimediaDlg::OnMedianFilterThreadMsgReceived(WPARAM wParam, LPARAM lP
 		// 当所有线程都返回了值1代表全部结束~显示时间
 		if (m_nThreadNum == ++tempCount)
 		{
-			CTime endTime = CTime::GetTickCount();
+			long endTime = getCurrentTime();
 			CString timeStr;
 			timeStr.Format(*new CString("耗时:%dms"), endTime - startTime);
 			tempCount = 0;
@@ -394,7 +397,7 @@ LRESULT CMultimediaDlg::OnNoiseThreadMsgReceived(WPARAM wParam, LPARAM lParam)
 		tempCount++;
 	if (m_nThreadNum == tempCount)
 	{
-		CTime endTime = CTime::GetTickCount();
+		long endTime = getCurrentTime();
 		CString timeStr;
 		timeStr.Format(*new CString("耗时:%dms"), endTime - startTime);
 		tempCount = 0;
@@ -415,7 +418,7 @@ void CMultimediaDlg::OnBnClickedButtonTone()
 	// TODO: 自动色阶
 	CComboBox* cmb_thread = ((CComboBox*)GetDlgItem(IDC_COMBO_THREAD));
 	int thread = cmb_thread->GetCurSel();
-	startTime = CTime::GetTickCount();
+	startTime = getCurrentTime();
 	m_nThreadNum;
 	switch (thread)
 	{
@@ -424,18 +427,104 @@ void CMultimediaDlg::OnBnClickedButtonTone()
 			int subLength = m_pImgSrc->GetWidth() * m_pImgSrc->GetHeight() / m_nThreadNum;
 			int h = m_pImgSrc->GetHeight() / m_nThreadNum;
 			int w = m_pImgSrc->GetWidth()/ m_nThreadNum;
+			int count = m_nThreadNum;
+			HANDLE* event = new HANDLE[m_nThreadNum]; 
 			for (int i = 0; i < m_nThreadNum; ++i)
 			{
+				event[i] = CreateEvent(NULL, 0, 0, 0);
+				m_pThreadParam[i].Event = &event[i];
+				m_pThreadParam[i].polt=new UINT*[4]; 
+				m_pThreadParam[i].polt[0]=new UINT[256];
+				m_pThreadParam[i].polt[1]=new UINT[256];
+				m_pThreadParam[i].polt[2]=new UINT[256];
+				m_pThreadParam[i].polt[3]=new UINT[256];
 				m_pThreadParam[i].startIndex = i * subLength;
 				m_pThreadParam[i].endIndex = i != m_nThreadNum -1 ? 
 					(i + 1) * subLength - 1 :m_pImgSrc->GetWidth() * m_pImgSrc->GetHeight() - 1;
 				m_pThreadParam[i].maxSpan = MAX_SPAN;
 				m_pThreadParam[i].src = m_pImgSrc;
-				AfxBeginThread((AFX_THREADPROC)&ImageProcess::medianFilter, &m_pThreadParam[i]);
+				AfxBeginThread((AFX_THREADPROC)&ImageProcess::histogram, &m_pThreadParam[i]);
+
 			}
 
-		}
+			for (int i = 0; i < m_nThreadNum;++i)
+			{
+				WaitForSingleObject(event[i],INFINITE);
+			}
+			 //计算总的直方图
+			 UINT** polt=new UINT*[4]; 
+			 polt[0]=new UINT[256];
+			 polt[1]=new UINT[256];
+			 polt[2]=new UINT[256];
+			 polt[3]=new UINT[256];
+			 memset(polt[0],0,sizeof(UINT)*256);
+			 memset(polt[1],0,sizeof(UINT)*256);
+			 memset(polt[2],0,sizeof(UINT)*256);
+			 memset(polt[3],0,sizeof(UINT)*256);
+			 for (int i=0;i<m_nThreadNum;++i)
+			 {
+				 for (int j=0;j<256;++j)
+				 {
+					 polt[0][j]+=m_pThreadParam[i].polt[0][j];
+					 polt[1][j]+=m_pThreadParam[i].polt[1][j];
+					 polt[2][j]+=m_pThreadParam[i].polt[2][j];
+				//	 polt[3][j]+=m_pThreadParam[i].polt[3][j];
+				 }
+			 }
+			 UINT** LUT = new UINT*[3];
+			 UINT black[3] = { 0, 0, 0 };
+			 UINT white[3] = { 255, 255, 255 };
+			 UINT* Brightness = polt[3];
+			 for (int channel = 0; channel < 3; ++channel)
+			 {
 
+				 //计算黑点
+
+				 for (int i = 0; i < 256; ++i)
+				 {
+					 if (polt[channel][i] != 0)
+					 {
+						 black[channel] = i;
+						 break;
+					 }
+				 }
+				 //计算白点
+				 for (int i = 255; i >= 0; --i)
+				 {
+					 if (polt[channel][i] != 0)
+					 {
+						 white[channel] = i;
+						 break;
+					 }
+				 }
+				 if (white == black)
+				 {
+					 break;
+				 }
+				 //计算每通道的LUT
+				 LUT[channel] = new UINT[256];
+				 for (int i = 0; i < 256; ++i)
+				 {
+					 float d = (static_cast<float>(255) / static_cast<float>(white[channel] - black[channel]));
+					 LUT[channel][i] =(float)d*(i - black[channel]);
+				 }
+			 }
+
+			 for (int i = 0; i < m_nThreadNum; ++i)
+			 {
+				 m_pThreadParam[i].LUT = LUT;
+				 m_pThreadParam[i].startIndex = i * subLength;
+				 m_pThreadParam[i].endIndex = i != m_nThreadNum - 1 ?
+					 (i + 1) * subLength - 1 : m_pImgSrc->GetWidth() * m_pImgSrc->GetHeight() - 1;
+				 m_pThreadParam[i].maxSpan = MAX_SPAN;
+				 m_pThreadParam[i].src = m_pImgSrc;
+				 AfxBeginThread((AFX_THREADPROC)&ImageProcess::Linear
+					 , &m_pThreadParam[i]);
+			 }
+
+
+
+		}
 		break;
 
 	case 1://openmp
@@ -453,7 +542,7 @@ void CMultimediaDlg::OnBnClickedButtonTone()
 				ImageProcess::medianFilter(&m_pThreadParam[i]);
 			}
 
-			CTime endTime = CTime::GetTickCount();
+			long endTime = getCurrentTime();
 			CString timeStr;
 			timeStr.Format(*new CString("耗时:%dms"), endTime - startTime);
 			AfxMessageBox(timeStr);
@@ -476,4 +565,63 @@ void CMultimediaDlg::OnBnClickedButtonWb()
 void CMultimediaDlg::OnBnClickedButtonRns()
 {
 	// TODO: 旋转缩放
+}
+
+
+afx_msg LRESULT CMultimediaDlg::OnHistogram(WPARAM wParam, LPARAM lParam)
+{
+	static int tempCount = 0;
+	if ((int)wParam == 1)
+	{
+		// 当所有线程都返回了值1代表全部结束~显示时间
+		if (m_nThreadNum == ++tempCount)
+		{
+			long endTime = getCurrentTime();
+			CString timeStr;
+			timeStr.Format(*new CString("耗时:%dms"), endTime - startTime);
+			tempCount = 0;
+
+			// 显示消息窗口
+			AfxMessageBox(timeStr);
+		}
+	}
+
+	return 0;
+}
+
+
+void CMultimediaDlg::OnBnClickedButton1()
+{
+	// TODO:  在此添加控件通知处理程序代码
+	// TODO:  在此添加控件通知处理程序代码
+	//选择文件对话框
+	TCHAR  szFilter[] = _T("JPEG(*.jpg)|*.jpg|BMP(*.jpg)|*.bmp|TIFF (*.tif)|*.tif|All Files (*.*)|*.*||");
+	CFileDialog fileOpenDlg(FALSE, NULL, NULL, OFN_HIDEREADONLY, szFilter);
+	if (fileOpenDlg.DoModal() == IDOK)
+	{
+		CString imFilePath;
+		VERIFY(imFilePath = fileOpenDlg.GetPathName());
+		HRESULT 	hResult= m_pImgSrc->Save(imFilePath);
+		if (FAILED(hResult))
+			MessageBox(_T("保存图像文件失败！"));
+		else
+			MessageBox(_T("保存图像文件成功！"));
+		this->Invalidate();
+	}
+}
+
+
+void CMultimediaDlg::OnBnClickedButtonSave()
+{
+	// TODO:  在此添加控件通知处理程序代码
+	//选择文件对话框
+	TCHAR  szFilter[] = _T("JPEG(*.jpg)|*.jpg|BMP(*.jpg)|*.bmp|TIFF (*.tif)|*.tif|All Files (*.*)|*.*||");
+	CFileDialog fileOpenDlg(FALSE, NULL, NULL, OFN_HIDEREADONLY, szFilter);
+	if (fileOpenDlg.DoModal() == IDOK)
+	{
+		CString imFilePath;
+		VERIFY(imFilePath = fileOpenDlg.GetPathName());
+		m_pImgSrc->Save(imFilePath);
+		this->Invalidate();
+	}
 }

@@ -47,6 +47,10 @@
 #define WM_NOISE WM_USER+2
 #endif
 
+#ifndef WM_HISTOGRAM
+#define WM_HISTOGRAM WM_USER+3
+#endif
+
 
 
 //#ifdef _UNICODE

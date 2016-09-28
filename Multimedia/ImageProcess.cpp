@@ -43,6 +43,32 @@ static bool GetValue(int p[],int size,int &value)
 
 }
 
+UINT ImageProcess::Linear(LPVOID p)
+{
+	ThreadParam* param = (ThreadParam*)p;
+	UINT** LUT = param->LUT;
+	int maxWidth = param->src->GetWidth();
+	int maxHeight = param->src->GetHeight();
+	int startIndex = param->startIndex;
+	int endIndex = param->endIndex;
+	byte* pRealData = (byte*)param->src->GetBits();
+	int bitCount = param->src->GetBPP() / 8;//每像素位数
+	int pit = param->src->GetPitch();//行地址间隔，用来遍历行
+	for (int i = startIndex; i <= endIndex; ++i)
+	{
+		int Sxy = 1;
+		int med = 0;
+		int state = 0;
+		int x = i % maxWidth;
+		int y = i / maxWidth;
+		*(pRealData + pit*y + x*bitCount + 2) = LUT[0][*(pRealData + pit*y + x*bitCount + 2)];
+		*(pRealData + pit*y + x*bitCount + 1) = LUT[1][*(pRealData + pit*y + x*bitCount + 1)];
+		*(pRealData + pit*y + x*bitCount) = LUT[2][*(pRealData + pit*y + x*bitCount + 0)];
+	}
+
+	::PostMessage(AfxGetMainWnd()->GetSafeHwnd(), WM_MEDIAN_FILTER, 1, NULL);
+	return 0;
+}
 
 UINT ImageProcess::medianFilter(LPVOID  p)
 {
@@ -145,11 +171,10 @@ UINT ImageProcess::addNoise(LPVOID  p)
 	byte* pRealData = (byte*)param->src->GetBits();
 	int bitCount = param->src->GetBPP() / 8;
 	int pit = param->src->GetPitch();
-
 	for (int i = startIndex; i <= endIndex; ++i)
 	{
-		int x = i % maxWidth;
-		int y = i / maxWidth;
+		int x = i % maxWidth;//获取列
+		int y = i / maxWidth;//获取行
 		if ((rand() % 1000) * 0.001 < NOISE)
 		{
 			int value = 0;
@@ -161,11 +186,11 @@ UINT ImageProcess::addNoise(LPVOID  p)
 			{
 				value = 255;
 			}
-			if(bitCount == 1)
+			if(bitCount == 1)//二值图像
 			{
 				*(pRealData + pit * y + x * bitCount) = value;
 			}
-			else
+			else//
 			{
 				*(pRealData + pit * y + x * bitCount) = value;
 				*(pRealData + pit * y + x * bitCount + 1) = value;
@@ -185,4 +210,59 @@ UINT ImageProcess::autoTone(LPVOID p)
 	int startIndex = param->startIndex;
 	int endIndex = param->endIndex; 
 	byte* pRealData = (byte*)param->src->GetBits();
+	int bitCount = param->src->GetBPP() / 8;//每像素位数
+	int pit = param->src->GetPitch();//行地址间隔，用来遍历行
+	return 0;
 }
+
+UINT ImageProcess::histogram(LPVOID p)
+{
+	ThreadParam* param = (ThreadParam*)p;
+	UINT**polt=param->polt;
+	UINT* red=polt[0];
+	UINT* green=polt[1];
+	UINT* blue=polt[2];
+	UINT* brightness=polt[3];
+	memset(red,0,sizeof(UINT)*256);
+	memset(green,0,sizeof(UINT)*256);
+	memset(blue,0,sizeof(UINT)*256);
+	memset(brightness,0,sizeof(UINT)*256);
+	int maxWidth = param->src->GetWidth();
+	int maxHeight = param->src->GetHeight();
+	int startIndex = param->startIndex;
+	int endIndex = param->endIndex; 
+
+	byte* pRealData = (byte*)param->src->GetBits();//bitmap开始字节
+	int bitCount = param->src->GetBPP() / 8;//每像素位数
+	int pit = param->src->GetPitch();//行地址间隔，用来遍历行
+	for (int i = startIndex; i <= endIndex; ++i)
+	{
+		int x = i % maxWidth;//获取列
+		int y = i / maxWidth;//获取行
+		++red[*(pRealData + pit*y + x*bitCount + 2)];
+		++green[*(pRealData + pit*y + x*bitCount + 1)];
+		++blue[*(pRealData + pit*y + x*bitCount + 0)];
+	}
+	SetEvent(*(param->Event));
+	return 0;
+}
+
+UINT8* ImageProcess::BuildGammaLUT(float fPrecompensation )
+{
+	UINT8* GammaLUT=new UINT8[256];
+	int i;  
+	float f;  
+	for( i=0;i<256;i++)  
+	{  
+		f=(i+0.5F)/256;//归一化  
+		f=(float)pow(f,fPrecompensation);  
+		GammaLUT[i]=(UINT8)(f*256-0.5F);//反归一化  
+	}  
+	return GammaLUT;
+}
+
+void ImageProcess::GammaCorrectiom(UINT* input,UINT8* gammaLUT)
+{
+	*input=gammaLUT[*input];  
+}
+

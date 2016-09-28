@@ -54,7 +54,7 @@ protected:
 	CImage *m_pImgSrc;//图像
 	int m_nThreadNum;//线程数
 	ThreadParam* m_pThreadParam;
-	CTime startTime;
+	long startTime;
 
 	// 生成的消息映射函数
 	virtual BOOL OnInitDialog();
@@ -67,4 +67,9 @@ public:
 	afx_msg void OnBnClickedButtonTone();
 	afx_msg void OnBnClickedButtonWb();
 	afx_msg void OnBnClickedButtonRns();
+protected:
+	afx_msg LRESULT OnHistogram(WPARAM wParam, LPARAM lParam);
+public:
+	afx_msg void OnBnClickedButton1();
+	afx_msg void OnBnClickedButtonSave();
 };

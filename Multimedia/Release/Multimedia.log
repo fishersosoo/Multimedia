@@ -1,4 +1,4 @@
-﻿生成启动时间为 2016/9/27 0:32:42。
+﻿生成启动时间为 2016/9/27 17:06:16。
      1>项目“K:\GitSpace\Multimedia\Multimedia\Multimedia.vcxproj”在节点 2 上(Build 个目标)。
      1>ClCompile:
          C:\SoftWares\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D _WINDOWS /D NDEBUG /D _UNICODE /D UNICODE /D _AFXDLL /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /openmp /Yu"stdafx.h" /Fp"Release\Multimedia.pch" /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Multimedia.cpp MultimediaDlg.cpp
@@ -6,8 +6,7 @@
          MultimediaDlg.cpp
      1>MultimediaDlg.cpp(17): warning C4101: “tv”: 未引用的局部变量
      1>MultimediaDlg.cpp(29): warning C4244: “参数”: 从“time_t”转换到“unsigned int”，可能丢失数据
-       ResourceCompile:
-         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\rc.exe /D NDEBUG /D _UNICODE /D UNICODE /D _AFXDLL /l"0x0804" /IRelease\ /nologo /fo"Release\Multimedia.res" Multimedia.rc 
+     1>MultimediaDlg.cpp(509): warning C4244: “=”: 从“float”转换到“UINT”，可能丢失数据
        Link:
          C:\SoftWares\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"K:\GitSpace\Multimedia\Release\Multimedia.exe" /INCREMENTAL:NO /NOLOGO /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /manifestinput:"C:\SoftWares\Microsoft Visual Studio 12.0\VC\Include\Manifest\dpiaware.manifest" /DEBUG /PDB:"K:\GitSpace\Multimedia\Release\Multimedia.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /ENTRY:"wWinMainCRTStartup" /DYNAMICBASE /NXCOMPAT /IMPLIB:"K:\GitSpace\Multimedia\Release\Multimedia.lib" /MACHINE:X86 /SAFESEH Release\Multimedia.res
          Release\ImageProcess.obj
@@ -21,4 +20,4 @@
 
 生成成功。
 
-已用时间 00:00:02.01
+已用时间 00:00:01.40
